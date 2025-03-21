@@ -4,7 +4,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
 
 # folder of random text files for RSA
-folder_path = "text_files" 
+folder_path = "text_files"
 
 # Generate RSA Key Pair (2048-bit)
 private_key = rsa.generate_private_key(
@@ -45,6 +45,11 @@ for filename in os.listdir(folder_path):
         with open(file_path, "rb") as f:
             data = f.read()
 
+        # RSA can only encrypt small chunks (~245 bytes with 2048-bit keys)
+        if len(data) > 245:
+            print(f"Skipping {filename}: File too large for RSA encryption")
+            continue  # Skip large files
+
         # Measure encryption time
         enc_time = timeit.timeit(lambda: encrypt_data(data), number=10) / 10
         encrypted_data = encrypt_data(data)
@@ -55,7 +60,7 @@ for filename in os.listdir(folder_path):
         # Store results
         results.append((filename, len(data), enc_time, dec_time))
 
-# 🔹 Print results
+# Print results
 print("Filename | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
 for filename, size, enc_time, dec_time in results:
-    print(f"{filename:<10} | {size:<12} | {enc_time:.6f}         | {dec_time:.6f}")
+    print(f"{filename:<8} | {size:<12} | {enc_time:.9f}         | {dec_time:.6f}")
