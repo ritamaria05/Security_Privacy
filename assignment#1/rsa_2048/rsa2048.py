@@ -51,11 +51,11 @@ for filename in os.listdir(folder_path):
             continue  # Skip large files
 
         # Measure encryption time
-        enc_time = timeit.timeit(lambda: encrypt_data(data), number=10) / 10
+        enc_time = timeit.timeit(lambda: encrypt_data(data), number=1000) / 1000
         encrypted_data = encrypt_data(data)
 
         # Measure decryption time
-        dec_time = timeit.timeit(lambda: decrypt_data(encrypted_data), number=10) / 10
+        dec_time = timeit.timeit(lambda: decrypt_data(encrypted_data), number=1000) / 1000
 
         # Store results
         results.append((filename, len(data), enc_time, dec_time))
