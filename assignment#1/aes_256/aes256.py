@@ -50,6 +50,7 @@ def decrypt(ciphertext, size):
 
 
 def main():
+    print("Filename    | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
     # process all input files in one run
     for size in sizes:
         file_path = os.path.join("text_files", str(size) + ".txt")
@@ -79,9 +80,12 @@ def main():
         f.write(decrypted_text.decode('utf-8')) # write the encrypted message to file
 
         results[size] = {'encryption_time': enc_time, 'decryption_time': dec_time}
-        print(f"File size: {size} bytes")
+        filename = str(size) + ".txt"
+        print(f"{filename:<11} | {size:<12} | {enc_time:.9f}         | {dec_time:.9f}")
+
+        '''print(f"File size: {size} bytes")
         print(f"  Average encryption time: {enc_time:.6f} seconds")
-        print(f"  Average decryption time: {dec_time:.6f} seconds\n")
+        print(f"  Average decryption time: {dec_time:.6f} seconds\n")'''
 
 
 if __name__ == "__main__":
