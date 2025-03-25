@@ -63,10 +63,6 @@ def process_all_files(size):
             filename = str(size) + "_" + str(i) + ".txt"
             print(f"{filename:<8} | {size:<12} | {enc_time:.9f}         | {dec_time:.6f}")
 
-
-import os
-import timeit
-
 def process_unique(file,size):
     file_path = os.path.join("text_files", str(size), file)
     # Check if the file exists
