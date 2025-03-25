@@ -52,11 +52,11 @@ def process_all_files(size):
                 data = f.read()
 
             # Measure encryption time
-            enc_time = timeit.timeit(lambda: encrypt_data(data), number=1000) / 1000
+            enc_time = (timeit.timeit(lambda: encrypt_data(data), number=1000) / 1000)* 1_000_000 
             encrypted_data = encrypt_data(data)
             arrayEnc[i-1] = enc_time
             # Measure decryption time
-            dec_time = timeit.timeit(lambda: decrypt_data(encrypted_data), number=1000) / 1000
+            dec_time = (timeit.timeit(lambda: decrypt_data(encrypted_data), number=1000) / 1000)* 1_000_000
             arrayDec[i-1] = dec_time
             # Store results
             results[size]={'encryption_time':enc_time, 'decryption_time':dec_time}
@@ -64,8 +64,7 @@ def process_all_files(size):
             print(f"{filename:<8} | {size:<12} | {enc_time:.9f}         | {dec_time:.6f}")
 
 
-import os
-import timeit
+
 
 def process_unique(file,size):
     file_path = os.path.join("text_files", str(size), file)
@@ -83,7 +82,7 @@ def process_unique(file,size):
     for i in range(100):  # Run 100 times for accuracy
         try:
             # Measure encryption time
-            enc_time = timeit.timeit(lambda: encrypt_data(data), number=100) / 100
+            enc_time = (timeit.timeit(lambda: encrypt_data(data), number=100) / 100)* 1_000_000
             encrypted_data = encrypt_data(data)
         except Exception as e:
             print(f"Error encrypting {file}: {e}")
@@ -91,7 +90,7 @@ def process_unique(file,size):
         arrayEnc.append(enc_time)
         try:
             # Measure decryption time
-            dec_time = timeit.timeit(lambda: decrypt_data(encrypted_data), number=100) / 100
+            dec_time = (timeit.timeit(lambda: decrypt_data(encrypted_data), number=100) / 100)* 1_000_000
         except Exception as e:
             print(f"Error decrypting {file}: {e}")
             continue
@@ -111,7 +110,7 @@ def plot_results(arrayEnc, arrayDec, file):
 
     # Adding labels and title
     plt.xlabel('Iteration')
-    plt.ylabel('Time (seconds)')
+    plt.ylabel('Time (microseconds)')
     plt.title(f"Encryption and Decryption Times for {file}")
     plt.legend()
 
