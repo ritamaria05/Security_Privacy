@@ -80,17 +80,25 @@ def processAllFiles(size):
         f = open(out_path, "w")
         f.write(decrypted_text.decode('utf-8')) # write the encrypted message to file
 
-        results[size] = {'encryption_time': enc_time, 'decryption_time': dec_time}
+        results[i-1] = {'encryption_time': enc_time, 'decryption_time': dec_time}
         filename = str(size) + "_" + str(i) + ".txt"
         print(f"{filename:<11} | {size:<12} | {enc_time:.9f}         | {dec_time:.9f}")
     # gerar graficos - to-do
 
-    
+
+def processUnique():
+    arrEnc = [0] * 100  # Creates a list with 100 elements initialized to 0
+    arrDec = [0] * 100 
+
 def main():
     print("Filename    | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
+
     # process all input files in one run
     for size in sizes:
         processAllFiles(size)
+
+    # process one given file various times
+    #processUnique()
 
 
 if __name__ == "__main__":
