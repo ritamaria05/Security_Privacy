@@ -46,13 +46,12 @@ def decrypt(ciphertext, size, iv):
         data = decryptor.update(ciphertext) + decryptor.finalize()
         return data
 
-
-
-def main():
-    print("Filename    | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
-    # process all input files in one run
-    for size in sizes:
-        file_path = os.path.join("text_files", str(size) + ".txt")
+## **** edit to store values in an arrayand then at end   **** ##
+def processAllFiles(size):
+    arrEnc = [0] * 100  # Creates a list with 100 elements initialized to 0
+    arrDec = [0] * 100 
+    for i in range(1,101):
+        file_path = os.path.join("text_files", str(size), str(size) + "_" + str(i) + ".txt")
         #print(file_path)
         file = open(file_path, "rb") # read input file and extract plaintext
         plaintext = file.read()
@@ -63,6 +62,7 @@ def main():
         # time of encryption (average over 1000 iterations)
         encrypt_timer = timeit.Timer(lambda: encrypt(plaintext,size,iv))
         enc_time = encrypt_timer.timeit(number=1000) / 1000
+        arrEnc[i-1] = enc_time
 
         ciphertext = encrypt(plaintext,size,iv)
         out_path = os.path.join(encrypt_dir, str(size) + ".bin")
@@ -73,19 +73,32 @@ def main():
         # Time decryption (average over 1000 iterations)
         decrypt_timer = timeit.Timer(lambda: decrypt(ciphertext, size,iv))
         dec_time = decrypt_timer.timeit(number=1000) / 1000
+        arrDec[i-1] = dec_time
 
         decrypted_text = decrypt(ciphertext, size,iv)
         out_path = os.path.join(decrypt_dir, str(size) + ".txt")
         f = open(out_path, "w")
         f.write(decrypted_text.decode('utf-8')) # write the encrypted message to file
 
-        results[size] = {'encryption_time': enc_time, 'decryption_time': dec_time}
-        filename = str(size) + ".txt"
+        results[i-1] = {'encryption_time': enc_time, 'decryption_time': dec_time}
+        filename = str(size) + "_" + str(i) + ".txt"
         print(f"{filename:<11} | {size:<12} | {enc_time:.9f}         | {dec_time:.9f}")
+    # gerar graficos - to-do
 
-        '''print(f"File size: {size} bytes")
-        print(f"  Average encryption time: {enc_time:.6f} seconds")
-        print(f"  Average decryption time: {dec_time:.6f} seconds\n")'''
+
+def processUnique():
+    arrEnc = [0] * 100  # Creates a list with 100 elements initialized to 0
+    arrDec = [0] * 100 
+
+def main():
+    print("Filename    | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
+
+    # process all input files in one run
+    for size in sizes:
+        processAllFiles(size)
+
+    # process one given file various times
+    #processUnique()
 
 
 if __name__ == "__main__":
