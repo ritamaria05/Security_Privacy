@@ -7,7 +7,6 @@ import timeit
 sizes = [8, 64, 512, 4096, 32768, 262144, 2097152]
 results = {}
 key = os.urandom(32) # key of 32 bytes (256 bits)
-iv = os.urandom(16) # iv has to be 16 bytes
 
 # create directories for encryption and decryption files
 encrypt_dir = "encrypted_files"
@@ -15,7 +14,7 @@ decrypt_dir = "decrypted_files"
 os.makedirs(encrypt_dir, exist_ok=True)
 os.makedirs(decrypt_dir, exist_ok=True)
 
-def encrypt(data, size):
+def encrypt(data, size, iv):
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
     encryptor = cipher.encryptor()
 
@@ -32,7 +31,7 @@ def encrypt(data, size):
 
 
 
-def decrypt(ciphertext, size):
+def decrypt(ciphertext, size, iv):
     # if not a size multiple of 16 it will have padding to be removed
     if size % 16 != 0:
         cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
@@ -57,24 +56,25 @@ def main():
         #print(file_path)
         file = open(file_path, "rb") # read input file and extract plaintext
         plaintext = file.read()
+        iv = os.urandom(16) # iv has to be 16 bytes
         #print(plaintext)
 
         # encrypt
         # time of encryption (average over 1000 iterations)
-        encrypt_timer = timeit.Timer(lambda: encrypt(plaintext,size))
+        encrypt_timer = timeit.Timer(lambda: encrypt(plaintext,size,iv))
         enc_time = encrypt_timer.timeit(number=1000) / 1000
 
-        ciphertext = encrypt(plaintext,size)
+        ciphertext = encrypt(plaintext,size,iv)
         out_path = os.path.join(encrypt_dir, str(size) + ".bin")
         f = open(out_path, "wb")
         f.write(ciphertext) # write the encrypted message to file
 
         # decrypt
         # Time decryption (average over 1000 iterations)
-        decrypt_timer = timeit.Timer(lambda: decrypt(ciphertext, size))
+        decrypt_timer = timeit.Timer(lambda: decrypt(ciphertext, size,iv))
         dec_time = decrypt_timer.timeit(number=1000) / 1000
 
-        decrypted_text = decrypt(ciphertext, size)
+        decrypted_text = decrypt(ciphertext, size,iv)
         out_path = os.path.join(decrypt_dir, str(size) + ".txt")
         f = open(out_path, "w")
         f.write(decrypted_text.decode('utf-8')) # write the encrypted message to file
