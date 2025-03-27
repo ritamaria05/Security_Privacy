@@ -3,6 +3,8 @@ from cryptography.hazmat.primitives.ciphers import Cipher,algorithms,modes
 from cryptography.hazmat.primitives import padding
 import os
 import timeit
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 sizes = [8, 64, 512, 4096, 32768, 262144, 2097152]
 results = {}
@@ -48,42 +50,108 @@ def decrypt(ciphertext, size, iv):
 
 ## **** edit to store values in an arrayand then at end   **** ##
 def processAllFiles(size):
-    arrEnc = [0] * 100  # Creates a list with 100 elements initialized to 0
-    arrDec = [0] * 100 
-    for i in range(1,101):
-        file_path = os.path.join("text_files", str(size), str(size) + "_" + str(i) + ".txt")
-        #print(file_path)
-        file = open(file_path, "rb") # read input file and extract plaintext
-        plaintext = file.read()
-        iv = os.urandom(16) # iv has to be 16 bytes
-        #print(plaintext)
+    arrEnc = [0] * 100  # Array to store encryption times for 100 files
+    arrDec = [0] * 100  # Array to store decryption times for 100 files
+    for i in range(1, 101):
+        file_path = os.path.join("text_files", str(size), f"{size}_{i}.txt")
+        with open(file_path, "rb") as file:
+            plaintext = file.read()
+        iv = os.urandom(16)  # IV has to be 16 bytes
 
-        # encrypt
-        # time of encryption (average over 1000 iterations)
-        encrypt_timer = timeit.Timer(lambda: encrypt(plaintext,size,iv))
-        enc_time = encrypt_timer.timeit(number=1000) / 1000
-        arrEnc[i-1] = enc_time
+        # Encrypt and time encryption
+        encrypt_timer = timeit.Timer(lambda: encrypt(plaintext, size, iv))
+        enc_time = (encrypt_timer.timeit(number=100) / 100) * 1000000
+        arrEnc[i - 1] = enc_time
 
-        ciphertext = encrypt(plaintext,size,iv)
-        out_path = os.path.join(encrypt_dir, str(size) + ".bin")
-        f = open(out_path, "wb")
-        f.write(ciphertext) # write the encrypted message to file
+        ciphertext = encrypt(plaintext, size, iv)
+        out_path = os.path.join(encrypt_dir, f"{size}.bin")
+        with open(out_path, "wb") as f:
+            f.write(ciphertext)
 
-        # decrypt
-        # Time decryption (average over 1000 iterations)
-        decrypt_timer = timeit.Timer(lambda: decrypt(ciphertext, size,iv))
-        dec_time = decrypt_timer.timeit(number=1000) / 1000
-        arrDec[i-1] = dec_time
+        # Decrypt and time decryption
+        decrypt_timer = timeit.Timer(lambda: decrypt(ciphertext, size, iv))
+        dec_time = (decrypt_timer.timeit(number=100) / 100) * 1000000
+        arrDec[i - 1] = dec_time
 
-        decrypted_text = decrypt(ciphertext, size,iv)
-        out_path = os.path.join(decrypt_dir, str(size) + ".txt")
-        f = open(out_path, "w")
-        f.write(decrypted_text.decode('utf-8')) # write the encrypted message to file
+        decrypted_text = decrypt(ciphertext, size, iv)
+        out_path = os.path.join(decrypt_dir, f"{size}.txt")
+        with open(out_path, "w") as f:
+            f.write(decrypted_text.decode('utf-8'))
 
-        results[i-1] = {'encryption_time': enc_time, 'decryption_time': dec_time}
-        filename = str(size) + "_" + str(i) + ".txt"
+        filename = f"{size}_{i}.txt"
         print(f"{filename:<11} | {size:<12} | {enc_time:.9f}         | {dec_time:.9f}")
-    # gerar graficos - to-do
+
+    # Store all times for the given size
+    results[size] = {'encryption_time': arrEnc, 'decryption_time': arrDec}
+
+# Define a list of 14 colors (hex codes or named colors)
+colors = [
+    '#1f77b4',  # muted blue
+    '#ff7f0e',  # safety orange
+    '#2ca02c',  # cooked asparagus green
+    '#d62728',  # brick red
+    '#9467bd',  # muted purple
+    '#8c564b',  # chestnut brown
+    '#e377c2',  # raspberry yogurt pink
+    '#7f7f7f',  # middle gray
+    '#bcbd22',  # curry yellow-green
+    '#17becf',  # blue-teal
+    '#aec7e8',  # light blue
+    '#ffbb78',  # light orange
+    '#98df8a',  # light green
+    '#ff9896'   # light red
+]
+
+def plot_graph(results):
+    plt.figure(figsize=(12, 8))
+    
+    # Loop through the results and assign a unique color per set
+    for idx, (s, times) in enumerate(results.items()):
+        color = colors[idx % len(colors)]
+        x_axis = range(1, len(times['encryption_time']) + 1)
+        plt.plot(x_axis, times['encryption_time'], label=f'Encryption Time for size {s}',
+                 color=color, linestyle='-', marker='o', markersize=4)
+        plt.plot(x_axis, times['decryption_time'], label=f'Decryption Time for size {s}',
+                 color=color, linestyle='--', marker='x', markersize=4)
+    
+    plt.xlabel('File Index')
+    plt.ylabel('Time (Microseconds)')
+    plt.title("Encryption and Decryption Times for AES")
+    plt.legend()
+    plt.show()
+
+def plot_graph_avg(results):
+    # For each size, compute the average encryption and decryption time
+    sizes = sorted(results.keys())
+    avg_enc_times = []
+    avg_dec_times = []
+    
+    for s in sizes:
+        avg_enc = sum(results[s]['encryption_time']) / len(results[s]['encryption_time'])
+        avg_dec = sum(results[s]['decryption_time']) / len(results[s]['decryption_time'])
+        avg_enc_times.append(avg_enc)
+        avg_dec_times.append(avg_dec)
+
+    plt.figure(figsize=(12, 8))
+
+    # Scatter plot for encryption and decryption times
+    plt.scatter(sizes, avg_enc_times, marker='o', color='blue', label='Encryption Time (Bottom Right Label)')
+    plt.scatter(sizes, avg_dec_times, marker='x', color='red', label='Decryption Time (Top Left Label)')
+    
+    # Add coordinate labels to each point
+    for x, y in zip(sizes, avg_enc_times):
+        plt.text(x, y, f"({x}, {y:.2f})", fontsize=9, verticalalignment='bottom', horizontalalignment='right')
+
+    for x, y in zip(sizes, avg_dec_times):
+        plt.text(x, y, f"({x}, {y:.2f})", fontsize=9, verticalalignment='top', horizontalalignment='left')
+
+    # Use a logarithmic scale for the x-axis
+    plt.xscale('log')  # 'log' for better visualization
+    plt.xlabel('Size (Bytes)')
+    plt.ylabel('Time (Microseconds)')
+    plt.title("Average Encryption and Decryption Times for AES")
+    plt.legend()
+    plt.show()
 
 
 def processUnique():
@@ -96,6 +164,8 @@ def main():
     # process all input files in one run
     for size in sizes:
         processAllFiles(size)
+    plot_graph(results)
+    plot_graph_avg(results)
 
     # process one given file various times
     #processUnique()
