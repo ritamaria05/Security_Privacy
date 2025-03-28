@@ -5,16 +5,35 @@ import os
 import timeit
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import numpy as np
+
+# Define a list of 14 colors (hex codes or named colors)
+colors = [
+    '#1f77b4',  # muted blue
+    '#ff7f0e',  # safety orange
+    '#2ca02c',  # cooked asparagus green
+    '#d62728',  # brick red
+    '#9467bd',  # muted purple
+    '#8c564b',  # chestnut brown
+    '#e377c2',  # raspberry yogurt pink
+    '#7f7f7f',  # middle gray
+    '#bcbd22',  # curry yellow-green
+    '#17becf',  # blue-teal
+    '#aec7e8',  # light blue
+    '#ffbb78',  # light orange
+    '#98df8a',  # light green
+    '#ff9896'   # light red
+]
 
 sizes = [8, 64, 512, 4096, 32768, 262144, 2097152]
 results = {}
 key = os.urandom(32) # key of 32 bytes (256 bits)
 
 # create directories for encryption and decryption files
-encrypt_dir = "encrypted_files"
+'''encrypt_dir = "encrypted_files"
 decrypt_dir = "decrypted_files"
 os.makedirs(encrypt_dir, exist_ok=True)
-os.makedirs(decrypt_dir, exist_ok=True)
+os.makedirs(decrypt_dir, exist_ok=True)'''
 
 def encrypt(data, size, iv):
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
@@ -63,19 +82,19 @@ def processAllFiles(size):
         arrEnc[i - 1] = enc_time
 
         ciphertext = encrypt(plaintext, size, iv)
-        out_path = os.path.join(encrypt_dir, f"{size}.bin")
+        '''out_path = os.path.join(encrypt_dir, f"{size}.bin")
         with open(out_path, "wb") as f:
-            f.write(ciphertext)
+            f.write(ciphertext)'''
 
         # Decrypt and time decryption
         decrypt_timer = timeit.Timer(lambda: decrypt(ciphertext, size, iv))
         dec_time = (decrypt_timer.timeit(number=100) / 100) * 1000000
         arrDec[i - 1] = dec_time
 
-        decrypted_text = decrypt(ciphertext, size, iv)
+        '''decrypted_text = decrypt(ciphertext, size, iv)
         out_path = os.path.join(decrypt_dir, f"{size}.txt")
         with open(out_path, "w") as f:
-            f.write(decrypted_text.decode('utf-8'))
+            f.write(decrypted_text.decode('utf-8'))'''
 
         filename = f"{size}_{i}.txt"
         print(f"{filename:<11} | {size:<12} | {enc_time:.9f}         | {dec_time:.9f}")
@@ -83,23 +102,6 @@ def processAllFiles(size):
     # Store all times for the given size
     results[size] = {'encryption_time': arrEnc, 'decryption_time': arrDec}
 
-# Define a list of 14 colors (hex codes or named colors)
-colors = [
-    '#1f77b4',  # muted blue
-    '#ff7f0e',  # safety orange
-    '#2ca02c',  # cooked asparagus green
-    '#d62728',  # brick red
-    '#9467bd',  # muted purple
-    '#8c564b',  # chestnut brown
-    '#e377c2',  # raspberry yogurt pink
-    '#7f7f7f',  # middle gray
-    '#bcbd22',  # curry yellow-green
-    '#17becf',  # blue-teal
-    '#aec7e8',  # light blue
-    '#ffbb78',  # light orange
-    '#98df8a',  # light green
-    '#ff9896'   # light red
-]
 
 def plot_graph(results):
     plt.figure(figsize=(12, 8))
@@ -212,19 +214,19 @@ def processUnique(file,size):
         arrayEnc.append(enc_time)
 
         ciphertext = encrypt(plaintext, size, iv)
-        out_path = os.path.join(encrypt_dir, f"{size}.bin")
+        '''out_path = os.path.join(encrypt_dir, f"{size}.bin")
         with open(out_path, "wb") as f:
-            f.write(ciphertext)
+            f.write(ciphertext)'''
 
         # Decrypt and time decryption
         decrypt_timer = timeit.Timer(lambda: decrypt(ciphertext, size, iv))
         dec_time = (decrypt_timer.timeit(number=1000) / 1000) * 1000000
         arrayDec.append(dec_time) 
 
-        decrypted_text = decrypt(ciphertext, size, iv)
+        ''' decrypted_text = decrypt(ciphertext, size, iv)
         out_path = os.path.join(decrypt_dir, f"{size}.txt")
         with open(out_path, "w") as f:
-            f.write(decrypted_text.decode('utf-8'))
+            f.write(decrypted_text.decode('utf-8'))'''
 
     plot_results(arrayEnc, arrayDec, file)
 
@@ -240,8 +242,11 @@ def plot_results(arrayEnc, arrayDec, file):
     plt.bar([i - bar_width / 2 for i in index], arrayEnc, bar_width, label='Encryption Time', color='blue')
     plt.bar([i + bar_width / 2 for i in index], arrayDec, bar_width, label='Decryption Time', color='red', alpha=0.6)
 
-    # Adding labels and title
+    # Compute standard deviation for encryption times
+    std_enc = np.std(arrayEnc, ddof=1)  # ddof=1 for sample std deviation
+    std_dec = np.std(arrayDec, ddof=1)  # ddof=1 for sample std deviation
 
+    # Adding labels and title
     plt.xlabel('Iteration')
     plt.ylabel('Time (microseconds)')
     plt.title(f"Encryption and Decryption Times for {file}")
@@ -251,12 +256,24 @@ def plot_results(arrayEnc, arrayDec, file):
     plt.xticks(tick_positions)  # Set X-axis to display only 10th iterations
     plt.legend(loc='upper right')
 
+
+    # Get the max x-axis value for proper alignment
+    max_x = len(arrayEnc)  # Assuming both lists have the same length
+    y_offset = max(arrayEnc) * 0.1  # Adjust vertical spacing dynamically
+
+    # Display standard deviation on the plot (right side, below legend)
+    plt.text(max_x, max(arrayEnc) - y_offset, f"Std Dev (Encryption): {std_enc:.2f}", 
+            fontsize=10, color='blue', verticalalignment='top', horizontalalignment='right')
+
+    plt.text(max_x, max(arrayEnc) - 2 * y_offset, f"Std Dev (Decryption): {std_dec:.2f}", 
+            fontsize=10, color='red', verticalalignment='top', horizontalalignment='right')
+
     # Display the plot
     plt.show()
 
 def main():
     # encrypt and decrypt a single given file
-    processUnique("16_5.txt",16)
+    processUnique("64_5.txt",64)
 
     print("Filename    | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
     # process all input files in one run
