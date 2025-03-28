@@ -39,9 +39,10 @@ def decrypt_data(encrypted_data):
         )
     )
 
-# Process each file in the folder
+
 results = {}
 
+# Process all files in each size folder
 def process_all_files(size):
     arrayEnc = [0]*100
     arrayDec = [0]*100
@@ -66,87 +67,9 @@ def process_all_files(size):
             filename = str(size) + "_" + str(i) + ".txt"
             print(f"{filename:<8} | {size:<12} | {enc_time:.9f}         | {dec_time:.6f}")
 
-# Define a list of 14 colors (hex codes or named colors)
-colors = [
-    '#1f77b4',  # muted blue
-    '#ff7f0e',  # safety orange
-    '#2ca02c',  # cooked asparagus green
-    '#d62728',  # brick red
-    '#9467bd',  # muted purple
-    '#8c564b',  # chestnut brown
-    '#e377c2',  # raspberry yogurt pink
-    '#7f7f7f',  # middle gray
-    '#bcbd22',  # curry yellow-green
-    '#17becf',  # blue-teal
-    '#aec7e8',  # light blue
-    '#ffbb78',  # light orange
-    '#98df8a',  # light green
-    '#ff9896'   # light red
-]
 
-def plot_graph(results):
-    plt.figure(figsize=(12, 8))
-
-    # Loop through the results and assign a unique color per set
-    bar_width = 0.35  # Set the width of the bars
-    for idx, (s, times) in enumerate(results.items()):
-        color = colors[idx % len(colors)]
-        x_axis = range(1, len(times['encryption_time']) + 1)  # X-axis is the file index
-
-        # Plot the bars for encryption and decryption times
-        plt.bar([i - bar_width / 2 for i in x_axis], times['encryption_time'], bar_width,
-                label=f'Encryption Time for size {s}', color=color)
-        plt.bar([i + bar_width / 2 for i in x_axis], times['decryption_time'], bar_width,
-                label=f'Decryption Time for size {s}', color=color, alpha=0.6)
-
-    # Set labels, title and x-axis ticks
-    plt.xlabel('File Index')
-    plt.ylabel('Time (Microseconds)')
-    plt.title("Encryption and Decryption Times for RSA")
-
-    # Set X-axis to show values from 0 to 100 with steps of 10
-    tick_positions = range(1, 101, 10)  # Show ticks every 10 iterations
-    plt.xticks(tick_positions)  # Set X-axis to display only 10th iterations (0, 10, 20, ..., 100)
-
-    plt.legend()
-    plt.show()
-
-
-def plot_graph_avg(results):
-    # For each size, compute the average encryption and decryption time
-    sizes = sorted(results.keys())
-    avg_enc_times = []
-    avg_dec_times = []
-    
-    for s in sizes:
-        avg_enc = sum(results[s]['encryption_time']) / len(results[s]['encryption_time'])
-        avg_dec = sum(results[s]['decryption_time']) / len(results[s]['decryption_time'])
-        avg_enc_times.append(avg_enc)
-        avg_dec_times.append(avg_dec)
-
-    plt.figure(figsize=(12, 8))
-
-    # Set the width of the bars
-    bar_width = 0.35
-    index = range(len(sizes))  # Indices for X-axis
-    
-    # Plot the bars for encryption and decryption times
-    plt.bar([i - bar_width / 2 for i in index], avg_enc_times, bar_width, label='Encryption Time', color='blue')
-    plt.bar([i + bar_width / 2 for i in index], avg_dec_times, bar_width, label='Decryption Time', color='red')
-
-    # Adding labels and title
-    plt.xlabel('Size (Bytes)')
-    plt.ylabel('Time (Microseconds)')
-    plt.title("Average Encryption and Decryption Times for RSA")
-
-    # Set the X-axis positions to the indices of sizes
-    plt.xticks(index, sizes)  # Use the actual size values as x-axis labels
-
-    # Display the bars and the legend
-    plt.legend()
-    plt.show()
-
-
+# Process an unique file to see its variations in time
+            
 def process_unique(file,size):
     file_path = os.path.join("text_files", str(size), file)
     # Check if the file exists
@@ -181,7 +104,7 @@ def process_unique(file,size):
     
     plot_results(arrayEnc, arrayDec, file)
 
-def plot_results(arrayEnc, arrayDec, file):
+def plot_results(arrayEnc, arrayDec, file): # works well
     # Create a figure
     plt.figure(figsize=(10, 6))
 
@@ -207,16 +130,110 @@ def plot_results(arrayEnc, arrayDec, file):
     # Display the plot
     plt.show()
 
+# Define a list of 14 colors (hex codes or named colors)
+colors = [
+    '#1f77b4',  # muted blue
+    '#ff7f0e',  # safety orange
+    '#2ca02c',  # cooked asparagus green
+    '#d62728',  # brick red
+    '#9467bd',  # muted purple
+    '#8c564b',  # chestnut brown
+    '#e377c2',  # raspberry yogurt pink
+    '#7f7f7f',  # middle gray
+    '#bcbd22',  # curry yellow-green
+    '#17becf',  # blue-teal
+    '#aec7e8',  # light blue
+    '#ffbb78',  # light orange
+    '#98df8a',  # light green
+    '#ff9896'   # light red
+]
+
+# plot to show times for each size folder 
+def plot_graph(results):
+    # Loop através dos resultados para cada pasta/tamanho
+    for folder_size, times in results.items():
+        # Criar um novo gráfico para cada tamanho de pasta
+        plt.figure(figsize=(12, 8))  # Definir o tamanho da figura
+
+        # Eixo X: Índices dos arquivos
+        x_axis = range(1, len(times['encryption_time']) + 1)  # Índice dos arquivos (1 a N)
+
+        # Largura da barra
+        bar_width = 0.35
+        
+        # Cor para os gráficos
+        color = 'b'
+        
+        # Plotando o tempo de encriptação
+        plt.bar([i - bar_width / 2 for i in x_axis], times['encryption_time'], bar_width, label='Encryption Time', color='blue')
+        
+        # Plotando o tempo de decriptação
+        plt.bar([i + bar_width / 2 for i in x_axis], times['decryption_time'], bar_width, label='Decryption Time', color='red', alpha=0.6)
+        
+        # Ajustar os rótulos e título para o gráfico
+        plt.xlabel('File Index')
+        plt.ylabel('Time (Microseconds)')
+        plt.title(f"Encryption and Decryption Times for RSA (Folder size {folder_size})")
+        
+        # Definir os ticks no eixo X para mostrar a cada 10 arquivos
+        tick_positions = range(1, len(x_axis) + 1, 10)  # Mostrar ticks a cada 10 iterações
+        plt.xticks(tick_positions)
+        
+        # Adicionar a legenda
+        plt.legend()
+
+        # Exibir o gráfico
+        plt.show()
+    
+
+# plot to show average times for each size files
+
+def plot_graph_avg(results): # works well
+    # For each size, compute the average encryption and decryption time
+    sizes = sorted(results.keys())
+    avg_enc_times = []
+    avg_dec_times = []
+    
+    for s in sizes:
+        avg_enc = sum(results[s]['encryption_time']) / len(results[s]['encryption_time'])
+        avg_dec = sum(results[s]['decryption_time']) / len(results[s]['decryption_time'])
+        avg_enc_times.append(avg_enc)
+        avg_dec_times.append(avg_dec)
+
+    plt.figure(figsize=(12, 8))
+
+    # Set the width of the bars
+    bar_width = 0.35
+    index = range(len(sizes))  # Indices for X-axis
+    
+    # Plot the bars for encryption and decryption times
+    plt.bar([i - bar_width / 2 for i in index], avg_enc_times, bar_width, label='Encryption Time', color='blue')
+    plt.bar([i + bar_width / 2 for i in index], avg_dec_times, bar_width, label='Decryption Time', color='red')
+
+    # Adding labels and title
+    plt.xlabel('Size (Bytes)')
+    plt.ylabel('Time (Microseconds)')
+    plt.title("Average Encryption and Decryption Times for RSA")
+
+    # Set the X-axis positions to the indices of sizes
+    plt.xticks(index, sizes)  # Use the actual size values as x-axis labels
+
+    # Display the bars and the legend
+    plt.legend()
+    plt.show()
 
 
 
 def main():
-    # Print results
+    # Print results of an unique file
     process_unique("64_5.txt",64)
+    # Process results for each folder
     print("Filename | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
     for size in sizes:
         process_all_files(size)
+    # Print a graph for each size folder
     plot_graph(results)
+    # Print a graph for the average of each size folder
     plot_graph_avg(results)
     
 if __name__ == "__main__":
