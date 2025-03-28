@@ -32,7 +32,6 @@ def encrypt(data, size, iv):
         return ct
 
 
-
 def decrypt(ciphertext, size, iv):
     # if not a size multiple of 16 it will have padding to be removed
     if size % 16 != 0:
@@ -153,19 +152,119 @@ def plot_graph_avg(results):
     plt.legend()
     plt.show()
 
+def plot_graph_avg_bar(results):
+    # For each size, compute the average encryption and decryption time
+    sizes = sorted(results.keys())
+    avg_enc_times = []
+    avg_dec_times = []
+    
+    for s in sizes:
+        avg_enc = sum(results[s]['encryption_time']) / len(results[s]['encryption_time'])
+        avg_dec = sum(results[s]['decryption_time']) / len(results[s]['decryption_time'])
+        avg_enc_times.append(avg_enc)
+        avg_dec_times.append(avg_dec)
 
-def processUnique():
-    arrEnc = [0] * 100  # Creates a list with 100 elements initialized to 0
-    arrDec = [0] * 100 
+    plt.figure(figsize=(12, 8))
+
+    bar_width = 0.35
+    index = range(len(sizes))  # Indices for X-axis
+
+    # Plot the bars for encryption and decryption times
+    plt.bar([i - bar_width / 2 for i in index], avg_enc_times, bar_width, label='Encryption Time', color='blue')
+    plt.bar([i + bar_width / 2 for i in index], avg_dec_times, bar_width, label='Decryption Time', color='red')
+    
+    # Add coordinate labels to each point
+    for x, y in zip(sizes, avg_enc_times):
+        plt.text(x, y, f"({x}, {y:.2f})", fontsize=9, verticalalignment='bottom', horizontalalignment='right')
+
+    for x, y in zip(sizes, avg_dec_times):
+        plt.text(x, y, f"({x}, {y:.2f})", fontsize=9, verticalalignment='top', horizontalalignment='left')
+
+    # Use a logarithmic scale for the x-axis
+    # Set the X-axis positions to the indices of sizes
+    plt.xticks(index, sizes)  # Use the actual size values as x-axis labels
+    plt.xlabel('Size (Bytes)')
+    plt.ylabel('Time (Microseconds)')
+    plt.title("Average Encryption and Decryption Times for AES")
+    plt.legend()
+    plt.show()
+
+def processUnique(file,size):
+    file_path = os.path.join("text_files", str(size), file)
+    # Check if the file exists
+    if not os.path.isfile(file_path):
+        print(f"Error: File {file_path} not found.")
+        return
+    # Read the file only once
+    with open(file_path, "rb") as f:
+        data = f.read()
+    # Arrays to store encryption and decryption times
+    arrayEnc = []
+    arrayDec = []
+    print(f"{file:<8}:")
+    for i in range(100):
+        with open(file_path, "rb") as f:
+            plaintext = f.read()
+        iv = os.urandom(16)  # IV has to be 16 bytes
+        # Encrypt and time encryption
+        encrypt_timer = timeit.Timer(lambda: encrypt(plaintext, size, iv))
+        enc_time = (encrypt_timer.timeit(number=1000) / 1000) * 1000000
+        arrayEnc.append(enc_time)
+
+        ciphertext = encrypt(plaintext, size, iv)
+        out_path = os.path.join(encrypt_dir, f"{size}.bin")
+        with open(out_path, "wb") as f:
+            f.write(ciphertext)
+
+        # Decrypt and time decryption
+        decrypt_timer = timeit.Timer(lambda: decrypt(ciphertext, size, iv))
+        dec_time = (decrypt_timer.timeit(number=1000) / 1000) * 1000000
+        arrayDec.append(dec_time) 
+
+        decrypted_text = decrypt(ciphertext, size, iv)
+        out_path = os.path.join(decrypt_dir, f"{size}.txt")
+        with open(out_path, "w") as f:
+            f.write(decrypted_text.decode('utf-8'))
+
+    plot_results(arrayEnc, arrayDec, file)
+
+def plot_results(arrayEnc, arrayDec, file):
+    # Create a figure
+    plt.figure(figsize=(10, 6))
+
+    # Set the width of the bars
+    bar_width = 0.35
+    index = range(1, len(arrayEnc) + 1)  # Indices for X-axis
+    
+    # Plot the encryption and decryption times as bar charts
+    plt.bar([i - bar_width / 2 for i in index], arrayEnc, bar_width, label='Encryption Time', color='blue')
+    plt.bar([i + bar_width / 2 for i in index], arrayDec, bar_width, label='Decryption Time', color='red', alpha=0.6)
+
+    # Adding labels and title
+
+    plt.xlabel('Iteration')
+    plt.ylabel('Time (microseconds)')
+    plt.title(f"Encryption and Decryption Times for {file}")
+    
+    # Set X-axis labels to the index of iterations
+    tick_positions = range(0, 101, 10)  # Show ticks every 10 iterations
+    plt.xticks(tick_positions)  # Set X-axis to display only 10th iterations
+    plt.legend(loc='upper right')
+
+    # Display the plot
+    plt.show()
 
 def main():
-    print("Filename    | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
+    # encrypt and decrypt a single given file
+    processUnique("16_5.txt",16)
 
+    print("Filename    | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
     # process all input files in one run
     for size in sizes:
         processAllFiles(size)
     plot_graph(results)
     plot_graph_avg(results)
+    plot_graph_avg_bar(results)
 
     # process one given file various times
     #processUnique()
