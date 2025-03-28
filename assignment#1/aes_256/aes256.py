@@ -102,36 +102,69 @@ def processAllFiles(size):
     # Store all times for the given size
     results[size] = {'encryption_time': arrEnc, 'decryption_time': arrDec}
 
-
+# plot to show times for each size folder 
 def plot_graph(results):
-    plt.figure(figsize=(12, 8))
-    
-    # Loop through the results and assign a unique color per set
-    for idx, (s, times) in enumerate(results.items()):
-        color = colors[idx % len(colors)]
-        x_axis = range(1, len(times['encryption_time']) + 1)
-        plt.plot(x_axis, times['encryption_time'], label=f'Encryption Time for size {s}',
-                 color=color, linestyle='-', marker='o', markersize=4)
-        plt.plot(x_axis, times['decryption_time'], label=f'Decryption Time for size {s}',
-                 color=color, linestyle='--', marker='x', markersize=4)
-    
-    plt.xlabel('File Index')
-    plt.ylabel('Time (Microseconds)')
-    plt.title("Encryption and Decryption Times for AES")
-    plt.legend()
-    plt.show()
+    # Loop através dos resultados para cada pasta/tamanho
+    for folder_size, times in results.items():
+        # Criar um novo gráfico para cada tamanho de pasta
+        plt.figure(figsize=(12, 8))  # Definir o tamanho da figura
+
+        # Eixo X: Índices dos arquivos
+        x_axis = range(1, len(times['encryption_time']) + 1)  # Índice dos arquivos (1 a N)
+
+        # Largura da barra
+        bar_width = 0.35
+        
+        # Plotando o tempo de encriptação
+        plt.bar([i - bar_width / 2 for i in x_axis], times['encryption_time'], bar_width, label='Encryption Time', color='blue')
+        
+        # Plotando o tempo de decriptação
+        plt.bar([i + bar_width / 2 for i in x_axis], times['decryption_time'], bar_width, label='Decryption Time', color='red', alpha=0.6)
+        
+        # Calculate the standard deviation for encryption and decryption times
+        std_enc = np.std(times['encryption_time'], ddof=1)
+        std_dec = np.std(times['decryption_time'], ddof=1)
+
+        # Ajustar os rótulos e título para o gráfico
+        plt.xlabel('File Index')
+        plt.ylabel('Time (Microseconds)')
+        plt.title(f"Encryption and Decryption Times for AES ({folder_size} bytes)")
+        
+        # Definir os ticks no eixo X para mostrar a cada 10 arquivos
+        tick_positions = range(0, 101, 10)  # Mostrar ticks a cada 10 iterações
+        plt.xticks(tick_positions)
+        
+        # Adicionar a legenda
+        plt.legend()
+
+        # Display both standard deviations below the title and above the bars
+        plt.text(0.25, 1.05, f"Std Dev (Encryption): {std_enc:.2f}", fontsize=12, color='blue',
+                verticalalignment='bottom', horizontalalignment='center', transform=plt.gca().transAxes)
+        
+        plt.text(0.75, 1.05, f"Std Dev (Decryption): {std_dec:.2f}", fontsize=12, color='red',
+                verticalalignment='bottom', horizontalalignment='center', transform=plt.gca().transAxes)
+
+        # Exibir o gráfico
+        plt.show()
 
 def plot_graph_avg(results):
     # For each size, compute the average encryption and decryption time
     sizes = sorted(results.keys())
     avg_enc_times = []
     avg_dec_times = []
+    std_enc_times = []
+    std_dec_times = []
     
     for s in sizes:
         avg_enc = sum(results[s]['encryption_time']) / len(results[s]['encryption_time'])
         avg_dec = sum(results[s]['decryption_time']) / len(results[s]['decryption_time'])
+        # Calculate the standard deviation for encryption and decryption times
+        std_enc = np.std(results[s]['encryption_time'], ddof=1)
+        std_dec = np.std(results[s]['decryption_time'], ddof=1)
         avg_enc_times.append(avg_enc)
         avg_dec_times.append(avg_dec)
+        std_enc_times.append(std_enc)
+        std_dec_times.append(std_dec)
 
     plt.figure(figsize=(12, 8))
 
@@ -140,11 +173,13 @@ def plot_graph_avg(results):
     plt.scatter(sizes, avg_dec_times, marker='x', color='red', label='Decryption Time (Top Left Label)')
     
     # Add coordinate labels to each point
-    for x, y in zip(sizes, avg_enc_times):
+    for x, y, std in zip(sizes, avg_enc_times, std_enc_times):
         plt.text(x, y, f"({x}, {y:.2f})", fontsize=9, verticalalignment='bottom', horizontalalignment='right')
+        plt.text(x, y + std+150, f"Std Dev: {std:.2f}", fontsize=9, color='blue', verticalalignment='bottom', horizontalalignment='center')
 
-    for x, y in zip(sizes, avg_dec_times):
+    for x, y, std in zip(sizes, avg_dec_times, std_dec_times):
         plt.text(x, y, f"({x}, {y:.2f})", fontsize=9, verticalalignment='top', horizontalalignment='left')
+        plt.text(x, y + std+50, f"Std Dev: {std:.2f}", fontsize=9, color='red', verticalalignment='bottom', horizontalalignment='center')
 
     # Use a logarithmic scale for the x-axis
     plt.xscale('log')  # 'log' for better visualization
@@ -159,12 +194,19 @@ def plot_graph_avg_bar(results):
     sizes = sorted(results.keys())
     avg_enc_times = []
     avg_dec_times = []
+    std_enc_times = []
+    std_dec_times = []
     
     for s in sizes:
         avg_enc = sum(results[s]['encryption_time']) / len(results[s]['encryption_time'])
         avg_dec = sum(results[s]['decryption_time']) / len(results[s]['decryption_time'])
+        # Calculate the standard deviation for encryption and decryption times
+        std_enc = np.std(results[s]['encryption_time'], ddof=1)
+        std_dec = np.std(results[s]['decryption_time'], ddof=1)
         avg_enc_times.append(avg_enc)
         avg_dec_times.append(avg_dec)
+        std_enc_times.append(std_enc)
+        std_dec_times.append(std_dec)
 
     plt.figure(figsize=(12, 8))
 
@@ -175,19 +217,25 @@ def plot_graph_avg_bar(results):
     plt.bar([i - bar_width / 2 for i in index], avg_enc_times, bar_width, label='Encryption Time', color='blue')
     plt.bar([i + bar_width / 2 for i in index], avg_dec_times, bar_width, label='Decryption Time', color='red')
     
-    # Add coordinate labels to each point
-    for x, y in zip(sizes, avg_enc_times):
-        plt.text(x, y, f"({x}, {y:.2f})", fontsize=9, verticalalignment='bottom', horizontalalignment='right')
+    # Display the standard deviation as text on the plot (just like in the other function)
+    y_offset = max(max(avg_enc_times), max(avg_dec_times)) * 0.1  # Adjust vertical spacing
 
-    for x, y in zip(sizes, avg_dec_times):
-        plt.text(x, y, f"({x}, {y:.2f})", fontsize=9, verticalalignment='top', horizontalalignment='left')
+    # Add standard deviation text for encryption and decryption times
+    for i, (std_enc, std_dec) in enumerate(zip(std_enc_times, std_dec_times)):
+        plt.text(i - bar_width / 2, avg_enc_times[i] + y_offset, f"Std Dev: {std_enc:.2f}", 
+                 fontsize=10, color='blue', verticalalignment='bottom', horizontalalignment='center')
+        plt.text(i + bar_width / 2, avg_dec_times[i] + y_offset-100, f"Std Dev: {std_dec:.2f}", 
+                 fontsize=10, color='red', verticalalignment='bottom', horizontalalignment='center')
 
-    # Use a logarithmic scale for the x-axis
-    # Set the X-axis positions to the indices of sizes
-    plt.xticks(index, sizes)  # Use the actual size values as x-axis labels
+    # Adding labels and title
     plt.xlabel('Size (Bytes)')
     plt.ylabel('Time (Microseconds)')
     plt.title("Average Encryption and Decryption Times for AES")
+
+    # Set the X-axis positions to the indices of sizes
+    plt.xticks(index, sizes)  # Use the actual size values as x-axis labels
+
+    # Display the bars and the legend
     plt.legend()
     plt.show()
 
@@ -232,7 +280,7 @@ def processUnique(file,size):
 
 def plot_results(arrayEnc, arrayDec, file):
     # Create a figure
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 8))
 
     # Set the width of the bars
     bar_width = 0.35
@@ -249,7 +297,7 @@ def plot_results(arrayEnc, arrayDec, file):
     # Adding labels and title
     plt.xlabel('Iteration')
     plt.ylabel('Time (microseconds)')
-    plt.title(f"Encryption and Decryption Times for {file}")
+    plt.title(f"AES Encryption and Decryption Times for {file}")
     
     # Set X-axis labels to the index of iterations
     tick_positions = range(0, 101, 10)  # Show ticks every 10 iterations
@@ -261,13 +309,12 @@ def plot_results(arrayEnc, arrayDec, file):
     max_x = len(arrayEnc)  # Assuming both lists have the same length
     y_offset = max(arrayEnc) * 0.1  # Adjust vertical spacing dynamically
 
-    # Display standard deviation on the plot (right side, below legend)
-    plt.text(max_x, max(arrayEnc) - y_offset, f"Std Dev (Encryption): {std_enc:.2f}", 
-            fontsize=10, color='blue', verticalalignment='top', horizontalalignment='right')
-
-    plt.text(max_x, max(arrayEnc) - 2 * y_offset, f"Std Dev (Decryption): {std_dec:.2f}", 
-            fontsize=10, color='red', verticalalignment='top', horizontalalignment='right')
-
+    # Display both standard deviations below the title and above the bars
+    plt.text(0.25, 1.05, f"Std Dev (Encryption): {std_enc:.2f}", fontsize=12, color='blue',
+             verticalalignment='bottom', horizontalalignment='center', transform=plt.gca().transAxes)
+    
+    plt.text(0.75, 1.05, f"Std Dev (Decryption): {std_dec:.2f}", fontsize=12, color='red',
+             verticalalignment='bottom', horizontalalignment='center', transform=plt.gca().transAxes)
     # Display the plot
     plt.show()
 
@@ -279,6 +326,7 @@ def main():
     # process all input files in one run
     for size in sizes:
         processAllFiles(size)
+    # Print a graph for each size folder
     plot_graph(results)
     plot_graph_avg(results)
     plot_graph_avg_bar(results)

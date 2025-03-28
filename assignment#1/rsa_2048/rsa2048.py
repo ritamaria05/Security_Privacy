@@ -124,7 +124,7 @@ def plot_results(arrayEnc, arrayDec, file): # works well
 
     plt.xlabel('Iteration')
     plt.ylabel('Time (microseconds)')
-    plt.title(f"Encryption and Decryption Times for {file}")
+    plt.title(f"RSA Encryption and Decryption Times for {file}")
     
     # Set X-axis labels to the index of iterations
     tick_positions = range(0, 101, 10)  # Show ticks every 10 iterations
@@ -175,9 +175,6 @@ def plot_graph(results):
         # Largura da barra
         bar_width = 0.35
         
-        # Cor para os gráficos
-        color = 'b'
-        
         # Plotando o tempo de encriptação
         plt.bar([i - bar_width / 2 for i in x_axis], times['encryption_time'], bar_width, label='Encryption Time', color='blue')
         
@@ -188,15 +185,13 @@ def plot_graph(results):
         std_enc = np.std(times['encryption_time'], ddof=1)
         std_dec = np.std(times['decryption_time'], ddof=1)
 
-        
-
         # Ajustar os rótulos e título para o gráfico
         plt.xlabel('File Index')
         plt.ylabel('Time (Microseconds)')
         plt.title(f"Encryption and Decryption Times for RSA ({folder_size} bytes)")
         
         # Definir os ticks no eixo X para mostrar a cada 10 arquivos
-        tick_positions = range(1, len(x_axis) + 1, 10)  # Mostrar ticks a cada 10 iterações
+        tick_positions = range(0, 101, 10)  # Mostrar ticks a cada 10 iterações
         plt.xticks(tick_positions)
         
         # Adicionar a legenda
