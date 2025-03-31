@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 
-
 sizes = [8, 64, 512, 4096, 32768, 262144, 2097152]
 results = {}
 key = os.urandom(32) # key of 32 bytes (256 bits)
