@@ -7,23 +7,6 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 
-# Define a list of 14 colors (hex codes or named colors)
-colors = [
-    '#1f77b4',  # muted blue
-    '#ff7f0e',  # safety orange
-    '#2ca02c',  # cooked asparagus green
-    '#d62728',  # brick red
-    '#9467bd',  # muted purple
-    '#8c564b',  # chestnut brown
-    '#e377c2',  # raspberry yogurt pink
-    '#7f7f7f',  # middle gray
-    '#bcbd22',  # curry yellow-green
-    '#17becf',  # blue-teal
-    '#aec7e8',  # light blue
-    '#ffbb78',  # light orange
-    '#98df8a',  # light green
-    '#ff9896'   # light red
-]
 
 sizes = [8, 64, 512, 4096, 32768, 262144, 2097152]
 results = {}
@@ -66,7 +49,20 @@ def decrypt(ciphertext, size, iv):
         data = decryptor.update(ciphertext) + decryptor.finalize()
         return data
 
-## **** edit to store values in an arrayand then at end   **** ##
+    
+# Calculate and return the confidence interval for the given data.
+def get_confidence_interval(data, confidence=0.95):
+    # Parameters: confidence (float): The confidence level (default is 0.95).
+    n = len(data)
+    mean = np.mean(data)
+    std_dev = np.std(data, ddof=1)
+    se = std_dev / np.sqrt(n)
+    
+    # 95% confidence, using the normal distribution approximation: the z-score is 1.96.
+    z = 1.96  
+    margin_error = z * se
+    return (mean - margin_error, mean + margin_error)
+
 def processAllFiles(size):
     arrEnc = [0] * 100  # Array to store encryption times for 100 files
     arrDec = [0] * 100  # Array to store decryption times for 100 files
@@ -97,8 +93,11 @@ def processAllFiles(size):
             f.write(decrypted_text.decode('utf-8'))'''
 
         filename = f"{size}_{i}.txt"
-        print(f"{filename:<11} | {size:<12} | {enc_time:.9f}         | {dec_time:.9f}")
+        #print(f"{filename:<11} | {size:<12} | {enc_time:.9f}         | {dec_time:.9f}")
 
+    confidenceEnc = get_confidence_interval(arrEnc)
+    confidenceDec = get_confidence_interval(arrDec)
+    print(f"{size} bytes:\tEncryption: ({confidenceEnc[0]:.2f}, {confidenceEnc[1]:.2f})\tDecryption: ({confidenceDec[0]:.2f}, {confidenceDec[1]:.2f})")
     # Store all times for the given size
     results[size] = {'encryption_time': arrEnc, 'decryption_time': arrDec}
 
@@ -251,7 +250,7 @@ def processUnique(file,size):
     # Arrays to store encryption and decryption times
     arrayEnc = []
     arrayDec = []
-    print(f"{file:<8}:")
+    #print(f"{file:<8}:")
     for i in range(100):
         with open(file_path, "rb") as f:
             plaintext = f.read()
@@ -322,8 +321,11 @@ def main():
     # encrypt and decrypt a single given file
     processUnique("64_5.txt",64)
 
-    print("Filename    | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
+    #print("Filename    | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
     # process all input files in one run
+
+    print("Confidence Intervals (microseconds) for AES:")
+    print("----------------------------------------------------------------------------")
     for size in sizes:
         processAllFiles(size)
     # Print a graph for each size folder
