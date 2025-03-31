@@ -2,6 +2,7 @@ import os
 import timeit
 import hashlib
 import matplotlib.pyplot as plt
+import numpy as np
 
 sizes = [8, 64, 512, 4096, 32768, 262144, 2097152]
 
@@ -24,13 +25,23 @@ def find_correct_path():
             return path
     raise FileNotFoundError("Diretório text_files não encontrado")
 
+def get_confidence_interval(data, confidence=0.95):
+    # Parameters: confidence (float): The confidence level (default is 0.95).
+    n = len(data)
+    mean = np.mean(data)
+    std_dev = np.std(data, ddof=1)
+    se = std_dev / np.sqrt(n)
+    
+    # 95% confidence, using the normal distribution approximation: the z-score is 1.96.
+    z = 1.96  
+    margin_error = z * se
+    return (mean - margin_error, mean + margin_error)
 
 #Processar os ficheiros de um determinado tamanho
 def process_files(base_dir, size):
     size_dir = os.path.join(base_dir, str(size))
     hash_times = []
     
-
     for i in range(1, 101):
         file_path = os.path.join(size_dir, f"{size}_{i}.txt")
         if os.path.exists(file_path):
@@ -38,10 +49,12 @@ def process_files(base_dir, size):
                 file_data = file.read()
                 
                 timer = timeit.Timer(lambda: calculate_sha256_hash(file_data))
-                hash_time = (timer.timeit(number=100) / 100) * 1e6
+                hash_time = (timer.timeit(number=100) / 100) * 1000000
                 hash_times.append(hash_time)
-            break
-    
+
+    confidenceHash = get_confidence_interval(hash_times)
+    print(f"{size} bytes:\tHashing: ({confidenceHash[0]:.2f}, {confidenceHash[1]:.2f})")
+
     return sum(hash_times)/len(hash_times) if hash_times else None
 
 
@@ -60,7 +73,7 @@ def process_unique_file(file_name, size):
     hash_times = []
     for _ in range(100):
         timer = timeit.Timer(lambda: calculate_sha256_hash(data))
-        hash_time = (timer.timeit(number=1000) / 1000) * 1e6
+        hash_time = (timer.timeit(number=100) / 100) * 1000000
         hash_times.append(hash_time)
 
     # Resultados individuais
@@ -106,6 +119,8 @@ def main():
     results = {}
     
     #Processamento dos ficheiros
+    print("Confidence Intervals (microseconds) for SHA:")
+    print("----------------------------------------------------------------------------")
     for size in sizes:
         size_path = os.path.join(base_dir, str(size))
         if os.path.exists(size_path):
