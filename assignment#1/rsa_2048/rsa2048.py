@@ -43,6 +43,19 @@ def decrypt_data(encrypted_data):
 
 results = {}
 
+# Calculate and return the confidence interval for the given data.
+def get_confidence_interval(data, confidence=0.95):
+    # Parameters: confidence (float): The confidence level (default is 0.95).
+    n = len(data)
+    mean = np.mean(data)
+    std_dev = np.std(data, ddof=1)
+    se = std_dev / np.sqrt(n)
+    
+    # 95% confidence, using the normal distribution approximation: the z-score is 1.96.
+    z = 1.96  
+    margin_error = z * se
+    return (mean - margin_error, mean + margin_error)
+
 # Process all files in each size folder
 def process_all_files(size):
     arrayEnc = [0]*100
@@ -66,7 +79,11 @@ def process_all_files(size):
             results[size]['encryption_time'].append(enc_time)
             results[size]['decryption_time'].append(dec_time)
             filename = str(size) + "_" + str(i) + ".txt"
-            print(f"{filename:<8} | {size:<12} | {enc_time:.9f}         | {dec_time:.6f}")
+            #print(f"{filename:<8} | {size:<12} | {enc_time:.9f}         | {dec_time:.6f}")
+    
+    confidenceEnc = get_confidence_interval(arrayEnc)
+    confidenceDec = get_confidence_interval(arrayDec)
+    print(f"{size} bytes:\tEncryption: ({confidenceEnc[0]:.2f}, {confidenceEnc[1]:.2f})\tDecryption: ({confidenceDec[0]:.2f}, {confidenceDec[1]:.2f})")
 
 
 # Process an unique file to see its variations in time
@@ -83,7 +100,7 @@ def process_unique(file,size):
     # Arrays to store encryption and decryption times
     arrayEnc = []
     arrayDec = []
-    print(f"{file:<8}:")
+    #print(f"{file:<8}:")
     for i in range(100):  # Run 100 times for accuracy
         try:
             # Measure encryption time
@@ -101,7 +118,7 @@ def process_unique(file,size):
             continue
         arrayDec.append(dec_time)
     # Print averaged results
-        print(f"Encryption Time: {arrayEnc[i]:.9f} s | Decryption Time: {arrayDec[i]:.6f} s")
+        #print(f"Encryption Time: {arrayEnc[i]:.9f} s | Decryption Time: {arrayDec[i]:.6f} s")
     
     plot_results(arrayEnc, arrayDec, file)
 
@@ -250,7 +267,9 @@ def main():
     # Print results of an unique file
     process_unique("64_5.txt",64)
     # Process results for each folder
-    print("Filename | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
+    #print("Filename | Size (bytes) | Encryption Time (s) | Decryption Time (s)")
+    print("Confidence Intervals (microseconds) for RSA:")
+    print("----------------------------------------------------------------------------")
     for size in sizes:
         process_all_files(size)
     # Print a graph for each size folder
