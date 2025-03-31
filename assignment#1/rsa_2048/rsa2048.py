@@ -144,23 +144,6 @@ def plot_results(arrayEnc, arrayDec, file): # works well
     # Display the plot
     plt.show()
 
-# Define a list of 14 colors (hex codes or named colors)
-colors = [
-    '#1f77b4',  # muted blue
-    '#ff7f0e',  # safety orange
-    '#2ca02c',  # cooked asparagus green
-    '#d62728',  # brick red
-    '#9467bd',  # muted purple
-    '#8c564b',  # chestnut brown
-    '#e377c2',  # raspberry yogurt pink
-    '#7f7f7f',  # middle gray
-    '#bcbd22',  # curry yellow-green
-    '#17becf',  # blue-teal
-    '#aec7e8',  # light blue
-    '#ffbb78',  # light orange
-    '#98df8a',  # light green
-    '#ff9896'   # light red
-]
 
 # plot to show times for each size folder 
 def plot_graph(results):
