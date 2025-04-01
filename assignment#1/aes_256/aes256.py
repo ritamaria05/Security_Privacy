@@ -302,11 +302,6 @@ def plot_results(arrayEnc, arrayDec, file):
     plt.xticks(tick_positions)  # Set X-axis to display only 10th iterations
     plt.legend(loc='upper right')
 
-
-    # Get the max x-axis value for proper alignment
-    max_x = len(arrayEnc)  # Assuming both lists have the same length
-    y_offset = max(arrayEnc) * 0.1  # Adjust vertical spacing dynamically
-
     # Display both standard deviations below the title and above the bars
     plt.text(0.25, 1.05, f"Std Dev (Encryption): {std_enc:.2f}", fontsize=12, color='blue',
              verticalalignment='bottom', horizontalalignment='center', transform=plt.gca().transAxes)
