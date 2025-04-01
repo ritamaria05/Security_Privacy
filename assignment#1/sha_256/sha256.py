@@ -65,11 +65,13 @@ def process_files(base_dir, size):
     tick_positions = range(0, 101, 10)  # Show ticks every 10 iterations
     plt.xticks(tick_positions)  # Set X-axis to display only 10th iterations
     # Set the width of the bars
-    bar_width = 0.35
+    bar_width = 1
     index = range(1, len(hash_times) + 1)  # Indices for X-axis
-    plt.bar([i - bar_width / 2 for i in index], hash_times, bar_width, label='Encryption Time', color='blue')
+    # Plot the lines
+    plt.plot([i - bar_width / 2 for i in index], hash_times, '-', linewidth=2, color='blue', label='Tempo de Hash')
     plt.ylabel('Tempo de hash (µs)')
     plt.xlabel('Iterações')
+    plt.legend(loc='upper right')
     plt.title(f'Tempos de Hashing SHA ({size} bytes)')
     #plt.savefig(f'{file_name}_performance.png', dpi=120)
     plt.show()
@@ -96,12 +98,6 @@ def process_unique_file(file_name, size):
         hash_time = (timer.timeit(number=100) / 100) * 1000000
         hash_times.append(hash_time)
 
-    # Resultados individuais
-    #print(f"\nAnálise para o ficheiro {file_name}:")
-    #print(f"Melhor tempo: {min(hash_times):.2f} µs")
-    #print(f"Pior tempo: {max(hash_times):.2f} µs")
-    #print(f"Média: {sum(hash_times)/len(hash_times):.2f} µs")
-
     # Gráfico de distribuição
     plt.figure(figsize=(10, 6))
     std_hash = np.std(hash_times, ddof=1)  # ddof=1 for sample std deviation
@@ -112,11 +108,13 @@ def process_unique_file(file_name, size):
     tick_positions = range(0, 101, 10)  # Show ticks every 10 iterations
     plt.xticks(tick_positions)  # Set X-axis to display only 10th iterations
     # Set the width of the bars
-    bar_width = 0.35
+    bar_width = 1
     index = range(1, len(hash_times) + 1)  # Indices for X-axis
-    plt.bar([i - bar_width / 2 for i in index], hash_times, bar_width, label='Encryption Time', color='blue')
+    # Plot the lines
+    plt.plot([i - bar_width / 2 for i in index], hash_times, '-', linewidth=2, color='blue', label='Tempo de Hash')
     plt.ylabel('Tempo de hash (µs)')
     plt.xlabel('Iterações')
+    plt.legend(loc='upper right')
     plt.title(f'Distribuição de tempos - {file_name}')
     #plt.savefig(f'{file_name}_performance.png', dpi=120)
     plt.show()
@@ -127,24 +125,16 @@ def process_unique_file(file_name, size):
 def plot_sha256_performance(results, std_devs):
     x_values = list(results.keys())
     y_values = list(results.values())
-    std_values = list(std_devs.values())
 
-    plt.figure(figsize=(12, 7))
-    plt.plot(x_values, y_values, 'bo-', linewidth=2)
-    plt.xscale('log')
-
-# Add standard deviation as labels above each point
-    for i, txt in enumerate(std_values):
-        plt.annotate(f'Std Dev: {txt:.2f}', (x_values[i], y_values[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=10, color='red')
-
-    
+    plt.figure(figsize=(12, 8))
+    plt.plot(x_values, y_values, '-', linewidth=2,color='blue', label='Tempo de Hash')
+    plt.xscale('log')    
     plt.xlabel('Tamanho do arquivo (bytes)', fontsize=12)
     plt.ylabel('Tempo médio de hash (µs)', fontsize=12)
     plt.title('Desempenho do SHA-256 por Tamanho de Arquivo', fontsize=14)
     plt.grid(True, alpha=0.3)
     plt.xticks(x_values, [str(x) for x in x_values], rotation=45)
-
-    plt.tight_layout()
+    plt.legend(loc='upper right')
     #plt.savefig('sha256_performance.png', dpi=300)
     plt.show()
     plt.close()
