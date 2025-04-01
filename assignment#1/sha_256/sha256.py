@@ -54,7 +54,20 @@ def process_files(base_dir, size):
 
     confidenceHash = get_confidence_interval(hash_times)
     print(f"{size} bytes:\tHashing: ({confidenceHash[0]:.2f}, {confidenceHash[1]:.2f})")
-
+    # Gráfico de distribuição
+    plt.figure(figsize=(10, 6))
+    tick_positions = range(0, 101, 10)  # Show ticks every 10 iterations
+    plt.xticks(tick_positions)  # Set X-axis to display only 10th iterations
+    # Set the width of the bars
+    bar_width = 0.35
+    index = range(1, len(hash_times) + 1)  # Indices for X-axis
+    plt.bar([i - bar_width / 2 for i in index], hash_times, bar_width, label='Encryption Time', color='blue')
+    plt.ylabel('Tempo de hash (µs)')
+    plt.xlabel('Iterações')
+    plt.title(f'Tempos de Hashing SHA ({size} bytes)')
+    #plt.savefig(f'{file_name}_performance.png', dpi=120)
+    plt.show()
+    plt.close()
     return sum(hash_times)/len(hash_times) if hash_times else None
 
 
@@ -77,18 +90,23 @@ def process_unique_file(file_name, size):
         hash_times.append(hash_time)
 
     # Resultados individuais
-    print(f"\nAnálise para o ficheiro {file_name}:")
-    print(f"Melhor tempo: {min(hash_times):.2f} µs")
-    print(f"Pior tempo: {max(hash_times):.2f} µs")
-    print(f"Média: {sum(hash_times)/len(hash_times):.2f} µs")
+    #print(f"\nAnálise para o ficheiro {file_name}:")
+    #print(f"Melhor tempo: {min(hash_times):.2f} µs")
+    #print(f"Pior tempo: {max(hash_times):.2f} µs")
+    #print(f"Média: {sum(hash_times)/len(hash_times):.2f} µs")
 
     # Gráfico de distribuição
     plt.figure(figsize=(10, 6))
-    plt.hist(hash_times, bins=20, edgecolor='black', alpha=0.7)
-    plt.xlabel('Tempo de hash (µs)')
-    plt.ylabel('Frequência')
+    tick_positions = range(0, 101, 10)  # Show ticks every 10 iterations
+    plt.xticks(tick_positions)  # Set X-axis to display only 10th iterations
+    # Set the width of the bars
+    bar_width = 0.35
+    index = range(1, len(hash_times) + 1)  # Indices for X-axis
+    plt.bar([i - bar_width / 2 for i in index], hash_times, bar_width, label='Encryption Time', color='blue')
+    plt.ylabel('Tempo de hash (µs)')
+    plt.xlabel('Iterações')
     plt.title(f'Distribuição de tempos - {file_name}')
-    plt.savefig(f'{file_name}_performance.png', dpi=120)
+    #plt.savefig(f'{file_name}_performance.png', dpi=120)
     plt.show()
     plt.close()
 
@@ -110,7 +128,7 @@ def plot_sha256_performance(results):
     plt.xticks(x_values, [str(x) for x in x_values], rotation=45)
 
     plt.tight_layout()
-    plt.savefig('sha256_performance.png', dpi=300)
+    #plt.savefig('sha256_performance.png', dpi=300)
     plt.show()
     plt.close()
 
