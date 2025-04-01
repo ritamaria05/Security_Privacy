@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 sizes = [8, 64, 512, 4096, 32768, 262144, 2097152]
+std_dev = {}
 
 #Gerar a hash SHA-256 
 def calculate_sha256_hash(file_data):
@@ -54,8 +55,13 @@ def process_files(base_dir, size):
 
     confidenceHash = get_confidence_interval(hash_times)
     print(f"{size} bytes:\tHashing: ({confidenceHash[0]:.2f}, {confidenceHash[1]:.2f})")
+
+    std_hash = np.std(hash_times, ddof=1)  # ddof=1 for sample std deviation
+    std_dev[size] = std_hash
     # Gráfico de distribuição
     plt.figure(figsize=(10, 6))
+    plt.text(0.75, 1.05, f"Std Dev: {std_hash:.2f}", fontsize=12, color='blue',
+             verticalalignment='bottom', horizontalalignment='center', transform=plt.gca().transAxes)
     tick_positions = range(0, 101, 10)  # Show ticks every 10 iterations
     plt.xticks(tick_positions)  # Set X-axis to display only 10th iterations
     # Set the width of the bars
@@ -68,6 +74,7 @@ def process_files(base_dir, size):
     #plt.savefig(f'{file_name}_performance.png', dpi=120)
     plt.show()
     plt.close()
+
     return sum(hash_times)/len(hash_times) if hash_times else None
 
 
@@ -97,6 +104,11 @@ def process_unique_file(file_name, size):
 
     # Gráfico de distribuição
     plt.figure(figsize=(10, 6))
+    std_hash = np.std(hash_times, ddof=1)  # ddof=1 for sample std deviation
+    # Gráfico de distribuição
+    plt.figure(figsize=(10, 6))
+    plt.text(0.75, 1.05, f"Std Dev: {std_hash:.2f}", fontsize=12, color='blue',
+             verticalalignment='bottom', horizontalalignment='center', transform=plt.gca().transAxes)
     tick_positions = range(0, 101, 10)  # Show ticks every 10 iterations
     plt.xticks(tick_positions)  # Set X-axis to display only 10th iterations
     # Set the width of the bars
@@ -112,13 +124,18 @@ def process_unique_file(file_name, size):
 
 
 #Desempenho gráfico da SHA-256
-def plot_sha256_performance(results):
+def plot_sha256_performance(results, std_devs):
     x_values = list(results.keys())
     y_values = list(results.values())
+    std_values = list(std_devs.values())
 
     plt.figure(figsize=(12, 7))
     plt.plot(x_values, y_values, 'bo-', linewidth=2)
     plt.xscale('log')
+
+# Add standard deviation as labels above each point
+    for i, txt in enumerate(std_values):
+        plt.annotate(f'{txt:.2f}', (x_values[i], y_values[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=10, color='red')
 
     
     plt.xlabel('Tamanho do arquivo (bytes)', fontsize=12)
@@ -134,8 +151,7 @@ def plot_sha256_performance(results):
 
 def main():
     base_dir = find_correct_path()
-    results = {}
-    
+    results = {}    
     #Processamento dos ficheiros
     print("Confidence Intervals (microseconds) for SHA:")
     print("----------------------------------------------------------------------------")
@@ -148,7 +164,7 @@ def main():
     #Analise de ficheiro individual
     process_unique_file("4096_1.txt", 4096)
     
-    plot_sha256_performance(results)
+    plot_sha256_performance(results, std_dev)
     
     print("\nRESULTADOS GLOBAIS:")
     print(f"{'Tamanho':<10} | {'Média (µs)':<10}")
