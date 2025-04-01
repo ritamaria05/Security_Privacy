@@ -135,7 +135,7 @@ def plot_sha256_performance(results, std_devs):
 
 # Add standard deviation as labels above each point
     for i, txt in enumerate(std_values):
-        plt.annotate(f'{txt:.2f}', (x_values[i], y_values[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=10, color='red')
+        plt.annotate(f'Std Dev: {txt:.2f}', (x_values[i], y_values[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=10, color='red')
 
     
     plt.xlabel('Tamanho do arquivo (bytes)', fontsize=12)
