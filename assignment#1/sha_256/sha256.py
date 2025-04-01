@@ -152,6 +152,8 @@ def plot_sha256_performance(results, std_devs):
 def main():
     base_dir = find_correct_path()
     results = {}    
+    #Analise de ficheiro individual
+    process_unique_file("4096_1.txt", 4096)
     #Processamento dos ficheiros
     print("Confidence Intervals (microseconds) for SHA:")
     print("----------------------------------------------------------------------------")
@@ -161,8 +163,7 @@ def main():
             if avg_time := process_files(base_dir, size):
                 results[size] = avg_time
     
-    #Analise de ficheiro individual
-    process_unique_file("4096_1.txt", 4096)
+
     
     plot_sha256_performance(results, std_dev)
     
