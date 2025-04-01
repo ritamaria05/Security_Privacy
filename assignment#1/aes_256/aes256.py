@@ -147,7 +147,7 @@ def plot_graph(results):
 
 def plot_graph_avg(results):
     # For each size, compute the average encryption and decryption time
-    sizes = sorted(results.keys())
+    s = sorted(results.keys())
     avg_enc_times = []
     avg_dec_times = []
     std_enc_times = []
@@ -167,8 +167,8 @@ def plot_graph_avg(results):
     plt.figure(figsize=(12, 8))
 
     # Scatter plot for encryption and decryption times
-    plt.scatter(sizes, avg_enc_times, marker='o', color='blue', label='Encryption Time (Bottom Right Label)')
-    plt.scatter(sizes, avg_dec_times, marker='x', color='red', label='Decryption Time (Top Left Label)')
+    plt.plot(sizes, avg_enc_times, marker='o', color='blue', label='Encryption Time (Bottom Right Label)')
+    plt.plot(sizes, avg_dec_times, marker='x', color='red', label='Decryption Time (Top Left Label)')
     
     # Add coordinate labels to each point
     for x, y, std in zip(sizes, avg_enc_times, std_enc_times):
@@ -181,6 +181,8 @@ def plot_graph_avg(results):
 
     # Use a logarithmic scale for the x-axis
     plt.xscale('log')  # 'log' for better visualization
+    plt.xticks(sizes, [str(x) for x in sizes])
+    plt.tight_layout()
     plt.xlabel('Size (Bytes)')
     plt.ylabel('Time (Microseconds)')
     plt.title("Average Encryption and Decryption Times for AES")
@@ -281,12 +283,14 @@ def plot_results(arrayEnc, arrayDec, file):
     plt.figure(figsize=(12, 8))
 
     # Set the width of the bars
-    bar_width = 0.35
+    bar_width = 1
     index = range(1, len(arrayEnc) + 1)  # Indices for X-axis
     
     # Plot the encryption and decryption times as bar charts
-    plt.bar([i - bar_width / 2 for i in index], arrayEnc, bar_width, label='Encryption Time', color='blue')
-    plt.bar([i + bar_width / 2 for i in index], arrayDec, bar_width, label='Decryption Time', color='red', alpha=0.6)
+    plt.plot([i - bar_width / 2 for i in index], arrayEnc, '-', linewidth=1, color='blue', label='Encryption Time')
+    plt.plot([i - bar_width / 2 for i in index], arrayDec, '-', linewidth=1, color='red',label='Decryption Time')
+    #plt.bar([i - bar_width / 2 for i in index], arrayEnc, bar_width, label='Encryption Time', color='blue')
+    #plt.bar([i + bar_width / 2 for i in index], arrayDec, bar_width, label='Decryption Time', color='red', alpha=0.6)
 
     # Compute standard deviation for encryption times
     std_enc = np.std(arrayEnc, ddof=1)  # ddof=1 for sample std deviation
