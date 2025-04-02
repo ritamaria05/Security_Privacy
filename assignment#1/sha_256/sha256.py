@@ -143,7 +143,7 @@ def main():
     base_dir = find_correct_path()
     results = {}    
     #Analise de ficheiro individual
-    process_unique_file("4096_1.txt", 4096)
+    process_unique_file("64_5.txt", 64)
     #Processamento dos ficheiros
     print("Confidence Intervals (microseconds) for SHA:")
     print("----------------------------------------------------------------------------")
