@@ -1,12 +1,13 @@
 # Projects for Security and Privacy 2025
-
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Pandas](https://img.shields.io/badge/-Pandas-333333?style=flat&logo=pandas)
+![Jupyter](https://img.shields.io/badge/-Jupyter-F37626?style=flat-square&logo=jupyter&logoColor=white)
+<br>
 This repository contains three comprehensive assignments focused on security and privacy topics, completed as part of the Security and Privacy course in 2025. Each assignment explores different aspects of data security, privacy assessment, and anonymization techniques.
 
 ---
 
 ## Assignment #1: Performance Benchmarking of Cryptographic Mechanisms
-
-**Date:** April 2025
 
 ### Overview
 The purpose of this project is to measure the performance of cryptographic algorithms by analyzing the time AES, RSA, and SHA-256 take to process files of different sizes. This project uses Python implementations for encryption/decryption and hashing mechanisms to provide empirical performance measurements.
@@ -47,8 +48,6 @@ The project demonstrates how file size and algorithm type affect cryptographic o
 
 ## Assignment #2: Privacy Impact Assessment (PIA)
 
-**Date:** 2025
-
 ### Overview
 This assignment focuses on conducting a comprehensive Privacy Impact Assessment (PIA) for a healthcare information system. The PIA methodology is used to identify and evaluate privacy risks associated with the processing of personal data, particularly in the context of the COPMODO (Community-based Personalized Management Of Diabetes and Obesity) system.
 
@@ -88,8 +87,6 @@ The assessment includes both initial risk evaluations and final risk states afte
 ---
 
 ## Assignment #3: Dataset Anonymization
-
-**Date:** 2025
 
 ### Overview
 This project explores data anonymization techniques applied to sensitive datasets, implementing and analyzing k-anonymity and l-diversity privacy models. The assignment uses real-world datasets to demonstrate how anonymization can protect individual privacy while maintaining data utility for analysis.
@@ -181,8 +178,9 @@ Security_Privacy/
 
 ## Authors
 
-- Rita Maria (ritamaria05)
-- Contributors: Max (Assignment #3)
+- Rita Moreira
+- Maximiliano Sá
+- Samuel Silva
 
 ---
 
